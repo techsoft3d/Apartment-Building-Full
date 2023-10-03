@@ -1,30 +1,20 @@
-var arboleda = ["aa8e07b0-8047-491a-a644-c914dc9aa91d",//arboleda full
-"f23b7b53-8cf0-43b4-a44c-59cc9967b917", //Arboleda_Bldg-Plumb
-"8b147c79-2881-477d-878b-e001ee42c0e0", //Arboleda_Bldg-Mech
-"43e04b50-7217-47a1-8655-deeb18d5717a", //Arboleda_Bldg-Elect
-"6d85a9c5-ea11-485d-8999-94cbb6aa788d"//Arboleda_Bldg-Arch
+var arboleda = ["a8dd6378-6509-495f-b63c-0cff0ac1b566",//arboleda full
+"13d3d5d3-8387-41e5-9216-b7ddcce77c21", //Arboleda_Bldg-Plumb
+"65b848ea-b801-42e3-a043-6f0be00fd621", //Arboleda_Bldg-Mech
+"c8c1e020-fe14-4067-b360-4d0730559c6e", //Arboleda_Bldg-Elect
+"6f887bce-4c56-4c01-9960-b05694cec2ad"//Arboleda_Bldg-Arch
 ] 
 
 
 
 async function startViewer() {
-        const conversionServiceURI = "https://csapi.techsoft3d.com";
-
         var viewer;
-
-        let res = await fetch(conversionServiceURI + '/api/streamingSession');
-        var data = await res.json();
-        var endpointUriBeginning = 'ws://';
-
-        if(conversionServiceURI.substring(0, 5).includes("https")){
-                endpointUriBeginning = 'wss://'
-        }
-
-        await fetch(conversionServiceURI + '/api/enableStreamAccess/' + data.sessionid, { method: 'put', headers: { 'items': JSON.stringify(arboleda) } });
-
+        let sessioninfo = await caasClient.getStreamingSession();
+        await caasClient.enableStreamAccess(sessioninfo.sessionid, arboleda);
+        
         viewer = new Communicator.WebViewer({
                 containerId: "viewerContainer",
-                endpointUri: endpointUriBeginning + data.serverurl + ":" + data.port + '?token=' + data.sessionid,
+                endpointUri: sessioninfo.endpointUri,
                 model: "ArboledaFull",
                 enginePath: "https://cdn.jsdelivr.net/gh/techsoft3d/hoops-web-viewer",
                 rendererType: 0
@@ -37,17 +27,10 @@ async function startViewer() {
 }
 
 async function fetchVersionNumber() {
-        const conversionServiceURI = "https://csapi.techsoft3d.com";
-
-        let res = await fetch(conversionServiceURI + '/api/hcVersion');
-        var data = await res.json();
-        versionNumer = data;
-        
-        return data
-
+  let data = await caasClient.getHCVersion();
+  versionNumer = data;        
+  return data
 }
-
-
 
 async function initializeViewer() {
         var viewer = null;
